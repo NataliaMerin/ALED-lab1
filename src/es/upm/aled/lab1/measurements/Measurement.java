@@ -20,7 +20,7 @@ public class Measurement {
 	public Measurement(float[] channels) {
 		this.channels = channels;
 	}
-
+	
 	/**
 	 * Returns the value taken by the specified channel.
 	 * 

@@ -56,7 +56,10 @@ public class EEGModel {
 	 * @param measurements The Measurements that make up the EEGModel.
 	 */
 	public EEGModel(Measurement[] measurements) {
-		// TODO
+		for(int i=0; i<measurements.length; i++) {
+			addMeasurement(measurements[i]);
+		}
+		// TODO*
 		
 	}
 
@@ -89,9 +92,9 @@ public class EEGModel {
 	 * @return The new EEGModel.
 	 */
 	public EEGModel filter(Filter filter) {
-		// TODO
-		
-		return null;
+		return filter.applyFilter(this);
+		// TODO*
+	
 	}
 
 	/**
@@ -130,8 +133,19 @@ public class EEGModel {
 	 * @throws IOException Thrown if the file can't be written.
 	 */
 	public void saveFile(String fileName) throws IOException {
-		// TODO
-		
+		File f = new File(fileName); //Creamos un file que queremos rellenar con los datos
+		FileOutputStream tuberia =  new FileOutputStream(f); //conectamos archivo f con la tuberia
+		PrintStream ps =new PrintStream(tuberia); // Imprimirá los datos de recordings, y los lanzará por la tuberia al file creado
+		for(int i=0; i< measurements.size(); i++) {
+			Measurement m = measurements.get(i);
+			for(int j=0; j< m.numChannels();j++) {
+				ps.print(m.getChannel(j)+ ",");
+			}
+			ps.print("\n");
+		}
+		tuberia.close();
+		ps.close();
+		// TODO*
 	}
 
 	/**
@@ -249,13 +263,30 @@ public class EEGModel {
 		if (args.length > 0) {
 			EEGModel eeg = new EEGModel(args[0]);
 			eeg.plotData();
-			// TODO
+			
+		// APLICACIÓN FILTRO PARA TRES ÚLTIMOS CANALES
+			int totalChannel = eeg.getMeasurements()[0].numChannels(); 
+			int[] validChannels = {totalChannel-2, totalChannel-1, totalChannel}; //defino valid channels con los tres últimos canales.
+			FilterExtractChannels filter1 =  new FilterExtractChannels(validChannels); //defino el objeto filtro teniendo en cuenta el constructor creado.
+				filter1.applyFilter(eeg); //Uso el método ya definido.
+				
+		// APLICACIÓN FILTRO MEDIDAS DE 2750 HASTA 5750
+			int min= 2750;
+			int max= 5750;
+			FilterExtractPeriod filter2 = new FilterExtractPeriod(min,max);//defino el objeto filtro con los atributos min y max propuestos
+				filter2.applyFilter(eeg);//uso el métodos sobre el objeto de clase filter.
+			
+			// TODO*
 			
 		} else {
 			EEGModel eeg = new EEGModel();
 			eeg.createSyntheticData(1000);
-			// TODO
-			
+			// TODO*
+			try {
+				eeg.saveFile("Synthetic.txt");
+			}catch(IOException e) {
+				System.out.println("The file can't be written.");
+			}
 		}
 	}
 }
